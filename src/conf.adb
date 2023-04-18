@@ -137,6 +137,10 @@ package body Conf is
       Drop_Actor : Unbounded_String;
       My_Rule : Rule;
    begin
+      if Line = "" or else Line (Line'First) = '#' then
+         return;
+      end if;
+
       Next_Token (Line, Token, Start);
 
       if Start >= Line'Last then
