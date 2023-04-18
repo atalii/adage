@@ -1,0 +1,10 @@
+name = "adg"
+description = "ada group and privilege escalation"
+version = "0.1.0-dev"
+
+authors = ["tali auster"]
+maintainers = ["tali auster <tali.auster@gmail.com>"]
+maintainers-logins = ["atalii"]
+
+executables = ["adg"]
+
