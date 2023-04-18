@@ -3,6 +3,9 @@ use Interfaces.C.Strings;
 
 with System;
 
+with Get_Errno_Pkg;
+use Get_Errno_Pkg;
+
 package body Drop is
    function Find_Target (Name : String) return Target
    is
@@ -30,7 +33,7 @@ package body Drop is
       Attempt : constant Integer := Set_Uid (Uid);
    begin
       if Attempt /= 0 then
-         raise Bad_Perms with "Failed to setuid(2).";
+         raise Bad_Perms with "Failed to setuid(2), errno: " & Get_Errno'Image;
       end if;
    end Set_Uid_Safe;
 
@@ -39,7 +42,7 @@ package body Drop is
       Attempt : constant Integer := Set_Gid (Gid);
    begin
       if Attempt /= 0 then
-         raise Bad_Perms with "Failed to setgid(2).";
+         raise Bad_Perms with "Failed to setgid(2), errno: " & Get_Errno'Image;
       end if;
    end Set_Gid_Safe;
 end Drop;

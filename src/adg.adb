@@ -1,3 +1,4 @@
+with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Cli;
@@ -46,8 +47,8 @@ procedure Adg is
          end;
       end if;
    exception
-      when Drop.Bad_Perms =>
-         Put_Line ("Failure in setuid/setgid. Check installation.");
+      when E : Drop.Bad_Perms =>
+         Put_Line (Exception_Message (E));
    end Run;
 begin
    if not Verify_Env then
