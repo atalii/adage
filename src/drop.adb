@@ -24,8 +24,8 @@ package body Drop is
 
    procedure Drop (To : Target) is
    begin
-      Set_Uid_Safe (To.Uid);
       Set_Gid_Safe (To.Gid);
+      Set_Uid_Safe (To.Uid);
    end Drop;
 
    procedure Set_Uid_Safe (Uid : uid_t)
