@@ -1,6 +1,15 @@
 with Ada.Text_IO; use Ada.Text_IO;
 
+with Shadow;
+
 package body Pass is
+   function Verify (User : String) return Boolean is
+      Entered : constant String := Read;
+      Hashed : constant String := Shadow.Read_Hash (User);
+   begin
+      return Shadow.Match (Hashed, Entered);
+   end Verify;
+
    function Read return String is
    begin
       if Term_Init < 0 then

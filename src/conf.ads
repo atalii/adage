@@ -31,6 +31,4 @@ private
       Target_Actor : Unbounded_String;
       Drop_Actor : Unbounded_String;
    end record;
-
-   function Verify_Password (User : String) return Boolean;
 end Conf;

@@ -6,6 +6,7 @@ with Conf;
 with Drop;
 with Exec;
 with Ident;
+with Pass;
 
 procedure Adg is
    function Verify_Env return Boolean
@@ -31,11 +32,13 @@ procedure Adg is
    begin
       if not Allowed then
          Put_Line
-            ("Could not authenticate "
+            ("No rule allows for "
              & Name
-             & " as "
+             & " to authenticate as "
              & Cli.Drop_Target
              & ".");
+      elsif not Pass.Verify (Name) then
+         Put_Line ("Password authentication failed.");
       else
          declare
             Target : constant Drop.Target :=

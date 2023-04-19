@@ -2,12 +2,16 @@ with Interfaces.C;
 use Interfaces.C;
 
 package Pass is
-   function Read return String;
+   --  Prompt the user for their password, return true if it matches the
+   --  password database.
+   function Verify (User : String) return Boolean;
 
    Not_A_TTY : exception;
 
    Cannot_Modify_TTY : exception;
 private
+   function Read return String;
+
    function Term_Init return int;
 
    function Echo_Enable return int;

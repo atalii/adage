@@ -2,9 +2,6 @@ with Ada.Containers.Vectors;
 
 with Ada.Text_IO; use Ada.Text_IO;
 
-with Pass;
-with Shadow;
-
 package body Conf is
    type Error_Type is (No_Conf, Bad_Verb, Bad_Target, Early_End, Expected_As);
    type Error (Err : Error_Type := No_Conf) is record
@@ -281,15 +278,6 @@ package body Conf is
       Denied : constant Boolean :=
          Rules_Deny (Drop_Target, Actor_Name, Actor_Groups);
    begin
-      return (Allowed and not Denied)
-         and then Verify_Password (Actor_Name);
+      return Allowed and not Denied;
    end Is_Permitted;
-
-   function Verify_Password (User : String) return Boolean
-   is
-      Entered : constant String := Pass.Read;
-      Hashed : constant String := Shadow.Read_Hash (User);
-   begin
-      return Shadow.Match (Hashed, Entered);
-   end Verify_Password;
 end Conf;
