@@ -7,4 +7,5 @@ maintainers = ["tali auster <tali.auster@gmail.com>"]
 maintainers-logins = ["atalii"]
 
 executables = ["adg"]
-
+[[depends-on]]
+gnatprove = "^12.1.1"

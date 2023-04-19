@@ -10,7 +10,6 @@ package Shadow is
    function Match (Hash : String; Key : String) return Boolean;
 
    No_Entry : exception;
-   Invalid_Comparison : exception;
    Invalid_Hash_Field : exception;
 private
    function Match_Line (Line : String; User : String) return Boolean;
@@ -18,8 +17,6 @@ private
    function Get_Hash_Field (Line : String) return String;
 
    function Hash_Text (Key : String; Data : String) return String;
-
-   function Constant_Time_Compare (A, B : String) return Boolean;
 
    function Crypt (key : chars_ptr; salt : chars_ptr) return chars_ptr;
 

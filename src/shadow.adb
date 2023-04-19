@@ -1,8 +1,8 @@
 with Ada.Text_IO;
 use Ada.Text_IO;
 
-with Interfaces;
-use Interfaces;
+with Crypt_Algs;
+use Crypt_Algs;
 
 package body Shadow is
    function Read_Hash (User : String) return String
@@ -98,33 +98,4 @@ package body Shadow is
       Free (Data_C);
       return Hashed;
    end Hash_Text;
-
-   function Constant_Time_Compare (A, B : String) return Boolean
-   is
-      pragma Optimize (Off);
-
-      R : Unsigned_8 := 0;
-
-      A_I : Character;
-      B_I : Character;
-
-      A_I_T : Unsigned_8;
-      B_I_T : Unsigned_8;
-   begin
-      if A'Length /= B'Length then
-         raise Invalid_Comparison;
-      end if;
-
-      for I in 0 .. (A'Length - 1) loop
-         A_I := A (A'First + I);
-         B_I := B (B'First + I);
-
-         A_I_T := Standard.Character'Pos (A_I);
-         B_I_T := Standard.Character'Pos (B_I);
-
-         R := R or (A_I_T xor B_I_T);
-      end loop;
-
-      return R = 0;
-   end Constant_Time_Compare;
 end Shadow;
