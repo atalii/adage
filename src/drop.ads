@@ -6,6 +6,7 @@ use Libc_Interop;
 
 package Drop is
    Bad_Perms : exception;
+   No_Such_User : exception;
 
    type Target is record
       Uid : uid_t;

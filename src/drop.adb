@@ -1,16 +1,38 @@
+with Ada.Unchecked_Conversion;
+
 with Interfaces.C.Strings;
 use Interfaces.C.Strings;
 
 with System;
+with System.Address_To_Access_Conversions;
 
 with Get_Errno_Pkg;
 use Get_Errno_Pkg;
 
 package body Drop is
+   package Ptr_Handle is
+      new System.Address_To_Access_Conversions (Object => Character);
+
+   use Ptr_Handle;
+
+   function Ensure
+      (Name : String; Addr : System.Address) return System.Address
+   is begin
+      if Ptr_Handle.To_Pointer (Addr) = null then
+         raise No_Such_User
+            with "The requested user " & Name & "does not exist.";
+      else
+         return Addr;
+      end if;
+   end Ensure;
+
    function Find_Target (Name : String) return Target
    is
       C_String : chars_ptr := New_String (Name);
-      Pw_Ent_Addr : constant System.Address := Get_Pw_Nam (C_String);
+
+      Pw_Ent_Addr : constant System.Address :=
+         Ensure (Name, Get_Pw_Nam (C_String));
+
       Pw_Ent : constant Passwd_Pointer.Object_Pointer :=
          Passwd_Pointer.To_Pointer (Pw_Ent_Addr);
    begin

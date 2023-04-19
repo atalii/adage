@@ -52,6 +52,8 @@ procedure Adg is
    exception
       when E : Drop.Bad_Perms =>
          Put_Line (Exception_Message (E));
+      when E : Drop.No_Such_User =>
+         Put_Line (Exception_Message (E));
    end Run;
 begin
    if not Verify_Env then
