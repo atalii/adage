@@ -1,3 +1,4 @@
+with Ada.Command_Line; use Ada.Command_Line;
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
@@ -30,6 +31,8 @@ procedure Adg is
           Name,
           Groups);
    begin
+      Set_Exit_Status (1);
+
       if not Allowed then
          Put_Line
             ("No rule allows for "
