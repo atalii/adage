@@ -32,5 +32,9 @@ package body Pass is
          Put_Line ("");
          return Input;
       end;
+   exception
+      when End_Error =>
+         Put_Line ("");
+         raise Cannot_Read;
    end Read;
 end Pass;

@@ -57,6 +57,8 @@ procedure Adg is
          Put_Line (Exception_Message (E));
       when E : Drop.No_Such_User =>
          Put_Line (Exception_Message (E));
+      when Pass.Cannot_Read =>
+         Put_Line ("Cannot read password. Exiting.");
    end Run;
 begin
    if not Verify_Env then

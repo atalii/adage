@@ -9,6 +9,8 @@ package Pass is
    Not_A_TTY : exception;
 
    Cannot_Modify_TTY : exception;
+
+   Cannot_Read : exception;
 private
    function Read return String;
 
