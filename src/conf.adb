@@ -169,10 +169,9 @@ package body Conf is
          return;
       end if;
 
-      --  Verify that the token is 'as'; we still persist with parsing even if
-      --  this isn't the case.
       if Token /= "as" then
          Report ((Err => Expected_As, Got => Token, Line => Line_Number));
+         return;
       end if;
 
       Next_Token (Line, Drop_Actor, Start);
