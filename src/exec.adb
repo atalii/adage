@@ -19,9 +19,15 @@ package body Exec is
    procedure Exec (Args : Cli.C_Compat_Args) is
       Status : constant Integer
          := Exec_Vp (Args.Binary_Name, Args.Argv);
+      R : Integer;
    begin
       if Status < 0 then
-         Put_Line ("Exec failed with errno: " & Get_Errno'Image);
+         R := Get_Errno;
+         if R = 2 then
+            Put_Line ("Command not found.");
+         else
+            Put_Line ("Exec failed with errno: " & R'Image);
+         end if;
       end if;
    end Exec;
 end Exec;
