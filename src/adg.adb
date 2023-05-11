@@ -26,10 +26,11 @@ procedure Adg is
    procedure Run is
       Name : constant String := Ident.Read_User;
       Groups : constant Ident.Groups.Vector := Ident.Read_Groups;
-      Allowed : constant Boolean := Conf.Is_Permitted
+      Ticket : constant Conf.Ticket := Conf.Is_Permitted
          (Cli.Drop_Target,
           Name,
           Groups);
+      Allowed : constant Boolean := Ticket.Permit;
    begin
       Set_Exit_Status (1);
 
@@ -40,7 +41,7 @@ procedure Adg is
              & " to authenticate as "
              & Cli.Drop_Target
              & ".");
-      elsif not Pass.Verify (Name) then
+      elsif not Ticket.Opts.No_Pass and then not Pass.Verify (Name) then
          Put_Line ("Password authentication failed.");
       else
          declare

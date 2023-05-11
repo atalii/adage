@@ -3,12 +3,17 @@ with Ada.Containers.Vectors;
 with Ada.Text_IO; use Ada.Text_IO;
 
 package body Conf is
-   type Error_Type is (No_Conf, Bad_Verb, Bad_Target, Early_End, Expected_As);
+   type Error_Type is
+      (No_Conf, No_Options, Bad_Opt, Bad_Verb, Bad_Target, Early_End,
+      Expected_As);
+
    type Error (Err : Error_Type := No_Conf) is record
       Line : Natural;
       case Err is
          when Early_End => null;
          when No_Conf => null;
+         when No_Options => null;
+         when Bad_Opt => Opt : Unbounded_String;
          when Bad_Target => Target : Unbounded_String;
          when Bad_Verb => Verb : Unbounded_String;
          when Expected_As => Got : Unbounded_String;
@@ -38,6 +43,13 @@ package body Conf is
             when No_Conf =>
                Put_Line
                   ("No configuration file found. Does /etc/adage.conf exist?");
+
+            when No_Options =>
+               Put_Line
+                  ("Options should be preceded by `:`.");
+
+            when Bad_Opt =>
+               Put_Line ("Unrecognized option: " & To_String (Err.Opt) & ".");
 
             when Bad_Verb =>
                Put_Line
@@ -132,6 +144,7 @@ package body Conf is
       Target_Actor : Unbounded_String;
       Target_Category : Category;
       Drop_Actor : Unbounded_String;
+      Option : Unbounded_String;
       My_Rule : Rule;
    begin
       if Line = "" or else Line (Line'First) = '#' then
@@ -176,12 +189,36 @@ package body Conf is
 
       Next_Token (Line, Drop_Actor, Start);
 
-      --  TODO: Parse options later.
       My_Rule :=
          (Effect => Effect,
           Target_Category => Target_Category,
           Target_Actor => Target_Actor,
-          Drop_Actor => Drop_Actor);
+          Drop_Actor => Drop_Actor,
+          Opts => (No_Pass => False, Keep_Env => False));
+
+      if Start < Line'Last then
+         if Tail (Drop_Actor, 1) /= ":" then
+            Report ((Err => No_Options, Line => Line_Number));
+         else
+            My_Rule.Drop_Actor := To_Unbounded_String
+               (Slice (My_Rule.Drop_Actor, 1, Length (Drop_Actor) - 1));
+
+            loop
+               exit when Start >= Line'Last;
+
+               Next_Token (Line, Option, Start);
+
+               if Option = "nopass" then
+                  My_Rule.Opts.No_Pass := True;
+               elsif Option = "keepenv" then
+                  My_Rule.Opts.Keep_Env := True;
+               else
+                  Report ((Err => Bad_Opt, Line => Line_Number,
+                     Opt => Option));
+               end if;
+            end loop;
+         end if;
+      end if;
 
       Rules.Append (Reported_Rules, My_Rule);
    end Parse;
@@ -240,17 +277,22 @@ package body Conf is
 
    function Rules_Permit
       (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
-      return Boolean is
+      return Ticket
+   is
+      T : Ticket :=
+         (Permit => False, Opts => (Keep_Env => False, No_Pass => False));
    begin
       for Rule of Reported_Rules loop
          if Rule.Effect = Permit and then Applicable
             (Rule, Drop_Target, Actor_Name, Actor_Groups)
          then
-            return True;
+            T.Permit := True;
+            T.Opts.Keep_Env := T.Opts.Keep_Env or else Rule.Opts.Keep_Env;
+            T.Opts.No_Pass := T.Opts.No_Pass or else Rule.Opts.No_Pass;
          end if;
       end loop;
 
-      return False;
+      return T;
    end Rules_Permit;
 
    function Rules_Deny
@@ -270,13 +312,14 @@ package body Conf is
 
    function Is_Permitted
       (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
-      return Boolean
+      return Ticket
    is
-      Allowed : constant Boolean :=
+      Allowed : Ticket :=
          Rules_Permit (Drop_Target, Actor_Name, Actor_Groups);
       Denied : constant Boolean :=
          Rules_Deny (Drop_Target, Actor_Name, Actor_Groups);
    begin
-      return Allowed and not Denied;
+      Allowed.Permit := Allowed.Permit and then not Denied;
+      return Allowed;
    end Is_Permitted;
 end Conf;
