@@ -36,7 +36,7 @@ procedure Adg is
 
       if not Allowed then
          Put_Line
-            ("No rule allows for "
+            ("Rules do not allow for "
              & Name
              & " to authenticate as "
              & Cli.Drop_Target
