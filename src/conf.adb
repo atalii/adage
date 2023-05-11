@@ -68,6 +68,19 @@ package body Conf is
       end loop;
    end Log_Errors;
 
+   function Check_Eol
+      (Start : Natural; Line : String; Line_Number : Integer)
+      return Boolean
+   is
+      Eol : constant Boolean := Start >= Line'Length;
+   begin
+      if Eol then
+         Report ((Err => Early_End, Line => Line_Number));
+      end if;
+
+      return Eol;
+   end Check_Eol;
+
    procedure Next_Token
       (Line : String; Token : out Unbounded_String; Start : in out Natural)
    is
@@ -153,8 +166,7 @@ package body Conf is
 
       Next_Token (Line, Token, Start);
 
-      if Start >= Line'Last then
-         Report ((Err => Early_End, Line => Line_Number));
+      if Check_Eol (Start, Line, Line_Number) then
          return;
       end if;
 
@@ -165,8 +177,7 @@ package body Conf is
 
       Next_Token (Line, Token, Start);
 
-      if Start >= Line'Last then
-         Report ((Err => Early_End, Line => Line_Number));
+      if Check_Eol (Start, Line, Line_Number) then
          return;
       end if;
 
@@ -176,11 +187,6 @@ package body Conf is
       end if;
 
       Next_Token (Line, Token, Start);
-
-      if Start >= Line'Last then
-         Report ((Err => Early_End, Line => Line_Number));
-         return;
-      end if;
 
       if Token /= "as" then
          Report ((Err => Expected_As, Got => Token, Line => Line_Number));
