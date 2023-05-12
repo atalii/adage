@@ -27,8 +27,8 @@ memory safety bugs.
 
 ## Configuration
 
-Adage and it's conf language are very simple. You need no more than the
-following:
+Adage and its conf language are very simple. The following snippet uses all the
+available syntax:
 
 ```
 # Permit my-user to authenticate as any user with a password check.
