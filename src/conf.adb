@@ -150,6 +150,19 @@ package body Conf is
       return True;
    end Parse_Target;
 
+   procedure Parse_Option
+      (Token : Unbounded_String; Opts : out Options; Line_Number : Natural) is
+   begin
+      if Token = "nopass" then
+         Opts.No_Pass := True;
+      elsif Token = "keepenv" then
+         Opts.Keep_Env := True;
+      else
+         Report ((Err => Bad_Opt, Line => Line_Number,
+            Opt => Token));
+      end if;
+   end Parse_Option;
+
    procedure Parse (Line : String; Line_Number : Natural) is
       Token : Unbounded_String;
       Start : Natural := Line'First;
@@ -211,17 +224,8 @@ package body Conf is
 
             loop
                exit when Start >= Line'Last;
-
                Next_Token (Line, Option, Start);
-
-               if Option = "nopass" then
-                  My_Rule.Opts.No_Pass := True;
-               elsif Option = "keepenv" then
-                  My_Rule.Opts.Keep_Env := True;
-               else
-                  Report ((Err => Bad_Opt, Line => Line_Number,
-                     Opt => Option));
-               end if;
+               Parse_Option (Option, My_Rule.Opts, Line_Number);
             end loop;
          end if;
       end if;
