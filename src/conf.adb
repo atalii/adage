@@ -2,17 +2,22 @@ with Ada.Containers.Vectors;
 
 with Ada.Text_IO; use Ada.Text_IO;
 
+with Get_Errno_Pkg;
+use Get_Errno_Pkg;
+
 package body Conf is
    type Error_Type is
-      (No_Conf, No_Options, Bad_Opt, Bad_Verb, Bad_Target, Early_End,
-      Expected_As);
+      (No_Conf, Bad_Conf_Perms, No_Stat, No_Options, Bad_Opt, Bad_Verb,
+      Bad_Target, Early_End, Expected_As);
 
    type Error (Err : Error_Type := No_Conf) is record
       Line : Natural;
       case Err is
          when Early_End => null;
          when No_Conf => null;
+         when Bad_Conf_Perms => null;
          when No_Options => null;
+         when No_Stat => Errno : Integer;
          when Bad_Opt => Opt : Unbounded_String;
          when Bad_Target => Target : Unbounded_String;
          when Bad_Verb => Verb : Unbounded_String;
@@ -43,6 +48,14 @@ package body Conf is
             when No_Conf =>
                Put_Line
                   ("No configuration file found. Does /etc/adage.conf exist?");
+
+            when Bad_Conf_Perms =>
+               Put_Line
+                  ("adage.conf should be 0644 or similar. Refusing to run.");
+
+            when No_Stat =>
+               Put_Line
+                  ("Could not stat(2) adage.conf. Errno: " & Err.Errno'Image);
 
             when No_Options =>
                Put_Line
@@ -236,7 +249,18 @@ package body Conf is
    function Read_Rules return Boolean is
       C : File_Type;
       Line_Number : Natural := 1;
+      R : constant Integer := Check_Conf_Perms;
+      Errno : constant Integer := Get_Errno;
    begin
+      if R < 0 and then Errno = 2 then
+         Report ((Err => No_Conf, Line => 0));
+         return False;
+      elsif R < 0 then
+         Report ((Err => No_Stat, Errno => Errno, Line => 0));
+      elsif R = 0 then
+         Report ((Err => Bad_Conf_Perms, Line => 0));
+      end if;
+
       Open (C, In_File, "/etc/adage.conf");
 
       while not End_Of_File (C) loop

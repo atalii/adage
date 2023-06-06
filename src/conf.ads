@@ -42,4 +42,11 @@ private
       Drop_Actor : Unbounded_String;
       Opts : Options;
    end record;
+
+   function Check_Conf_Perms return Integer;
+
+   pragma Import
+      (Convention => C,
+      Entity => Check_Conf_Perms,
+      External_Name => "check_conf_perms");
 end Conf;
