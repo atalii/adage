@@ -252,7 +252,7 @@ package body Conf is
       R : constant Integer := Check_Conf_Perms;
       Errno : constant Integer := Get_Errno;
    begin
-      if R < 0 and then Errno = 2 then
+      if R < 0 and then Errno = ENOENT then
          Report ((Err => No_Conf, Line => 0));
          return False;
       elsif R < 0 then

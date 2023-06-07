@@ -23,7 +23,7 @@ package body Exec is
    begin
       if Status < 0 then
          R := Get_Errno;
-         if R = 2 then
+         if R = ENOENT then
             Put_Line ("Command not found.");
          else
             Put_Line ("Exec failed with errno: " & R'Image);
