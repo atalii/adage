@@ -51,7 +51,7 @@ package body Conf is
 
             when Bad_Conf_Perms =>
                Put_Line
-                  ("adage.conf should be 0644 or similar. Refusing to run.");
+                  ("adage.conf must be root:root/0644 or similar.");
 
             when No_Stat =>
                Put_Line
