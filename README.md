@@ -2,9 +2,9 @@
 
 ada group and user escalation
 
-> This README is somewhat aspirational. Lots of it does work, but it's
-> unpolished and undocumented. Also, SPARK verification and options aren't
-> implemented yet. Don't use Adage in production - or development.
+> Hopefully this goes without saying, but don't install random SUID binaries
+> off the internet. Don't install this on any machine unless you
+> *really* know what you're doing.
 
 ```sh
 # run a command as root
@@ -17,70 +17,57 @@ $ adg @nas ls /media/nas
 
 ## Overview
 
-Adage is an alternative to doas and sudo, with a special focus on being small
-and safe: It's written in a mix of safe Ada and SPARK, where core
-authentication logic is formally verified, and everything else is free from
-memory safety bugs.
-
-> Be warned: I'm a dumbass on the internet. I think this is secure,
-> but, you know, maybe look it over first.
-
-## Configuration
-
-Adage and its conf language are very simple. The following snippet uses all the
-available syntax:
-
-```
-# Permit my-user to authenticate as any user with a password check.
-permit u!my-user  as *: keepenv
-
-# Permit my-user to run poweroff without any password.
-permit u!my-user  as root for "poweroff": nopasswd
-
-# Reject my-group to authenticate as root.
-reject g!my-group as root
-```
-
-Every line looks like: `permit/reject actor as role: options`. No rule is more
-than a line. An adage invocation succeeds if rules permit it and don't refuse
-it. In the case that multiple permit rules match, options from all of them are
-combined.
-
-Here's the config you probably want:
-
-```
-permit g!wheel as root
-```
-
-Or, the following will let your user move across users without a
-password:
-
-```
-permit u!my-user as *: nopass
-```
-
-As for options, we've got quite the small subset I stole from doas:
-keepenv (pass in environment variables) and nopass (don't require
-password authentication).
-
-The one gotcha is that we borrow from minecraft fanfictions in the
-actor syntax. To specify a user, we prepend the name with `u!`, and to
-specify a group, we prepend the name with `g!`.
-
-For more complete documentation, consult `adage.conf(5)`.
+Adage is a nimble alternative to doas and sudo meant to be simple, safe,
+proven, and secure. This simplicity is in usage, configuration, and
+function: Adage does as little as it can get away with.
 
 ## Usage
 
+Install [alire](https://alire.ada.dev/). Then, run `alr build`. Alternatively,
+adage is coming maybe some day to a package manager near you.
+
 ```
-usage: adg [@user] cmd
-
-If no @user is specified, adg will default to root.
-If no cmd is specified, the target user's shell is spawned.
+adg [@user] [cmd...]
 ```
 
-## TODOs
+## Configuration
 
-+ [ ] Comprehensive logging
-+ [ ] PAM?
-+ [ ] A persist option
-+ [ ] Conf file validation
+You probably want this configuration in `/etc/adage.conf`:
+
+```
+# Permit users of the wheel group to escalate to root.
+permit g!wheel as root
+
+# If you want to give your own user absolute power with no password, add
+# this line, too. It's convenient, but carries with it the obvious
+# implications.
+permit u!your-user as *: nopasswd
+```
+
+If this isn't the config you want, see `adage.conf(5)`.
+
+
+## Status
+
+Adage is unstable, unaudited, and developed on the villainous schedule of my
+free time. That said, here's what I'm looking to add or vaguely considering:
+
++ Comprehensive logging. Errors and escalations should be reported to the
+  syslog, or, if no socket is accessible, `/var/log`.
+
++ Persisted authentication. Both doas and sudo allow authentication to persist
+  for a bit so that password prompts don't become too annoying. This probably
+  represents a nice security/annoyance compromise, and would be good to support.
+
++ Configuration validation and escalation dry runs. Should be self-explanatory,
+  would be a nice QoL feature.
+
++ PAM. This is... rough. Implementing support for PAM would open up a lot, but
+  I'm cautious about this. First, it all but eliminates the benefits of using
+  Ada, as PAM authentication methods themselves are written in C. (This, of
+  course, assumes that my Ada is better than PAM's C, which is probably false,
+  but maybe useful to accept.) Second, if sudo is anything to go by, it may only
+  support escalating to root. This is one of my main frustrations with sudo, and
+  I'd really not like to copy that (perceived) deficiency here. That said, I'm
+  not familiar enough with the mechanisms of PAM to make this judgment just yet.
+  I could see my decisions going either way here.
