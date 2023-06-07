@@ -11,25 +11,6 @@ with Log;
 with Pass;
 
 procedure Adg is
-   type Action is (Help, Verify, Good_Conf, Bad_Conf);
-
-   function Verify_Env return Action is
-   begin
-      case Cli.Init_Env is
-         when Cli.Help =>
-            return Help;
-         when Cli.Verify =>
-            return Verify;
-         when Cli.Parse_Ok =>
-            if Conf.Read_Rules then
-               return Good_Conf;
-            else
-               Conf.Log_Errors;
-               return Bad_Conf;
-            end if;
-      end case;
-   end Verify_Env;
-
    procedure Help is
    begin
       Put_Line ("usage: adg [@user] [cmd...]");
@@ -81,10 +62,15 @@ procedure Adg is
       Set_Exit_Status (Boolean'Pos (not Status));
    end Verify;
 begin
-   case Verify_Env is
-      when Help => Help;
-      when Verify => Verify;
-      when Good_Conf => Run;
-      when Bad_Conf => Set_Exit_Status (1);
+   case Cli.Init_Env is
+      when Cli.Help => Help;
+      when Cli.Verify => Verify;
+      when Cli.Parse_Ok =>
+         if Conf.Read_Rules then
+            Run;
+         else
+            Conf.Log_Errors;
+            Set_Exit_Status (1);
+         end if;
    end case;
 end Adg;
