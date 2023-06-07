@@ -7,6 +7,7 @@ with Conf;
 with Drop;
 with Exec;
 with Ident;
+with Log;
 with Pass;
 
 procedure Adg is
@@ -35,14 +36,14 @@ procedure Adg is
       Set_Exit_Status (1);
 
       if not Allowed then
-         Put_Line
+         Log.Error
             ("Rules do not allow for "
              & Name
              & " to authenticate as "
              & Cli.Drop_Target
              & ".");
       elsif not Ticket.Opts.No_Pass and then not Pass.Verify (Name) then
-         Put_Line ("Password authentication failed.");
+         Log.Error ("Password authentication failed.");
       else
          declare
             Target : constant Drop.Target :=
@@ -55,11 +56,11 @@ procedure Adg is
       end if;
    exception
       when E : Drop.Bad_Perms =>
-         Put_Line (Exception_Message (E));
+         Log.Error (Exception_Message (E));
       when E : Drop.No_Such_User =>
-         Put_Line (Exception_Message (E));
+         Log.Error (Exception_Message (E));
       when Pass.Cannot_Read =>
-         Put_Line ("Cannot read password. Exiting.");
+         Log.Error ("Cannot read password. Exiting.");
    end Run;
 begin
    if not Verify_Env then

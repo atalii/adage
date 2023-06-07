@@ -5,6 +5,8 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Get_Errno_Pkg;
 use Get_Errno_Pkg;
 
+with Log;
+
 package body Conf is
    type Error_Type is
       (No_Conf, Bad_Conf_Perms, No_Stat, No_Options, Bad_Opt, Bad_Verb,
@@ -46,37 +48,38 @@ package body Conf is
 
          case Err.Err is
             when No_Conf =>
-               Put_Line
+               Log.Error
                   ("No configuration file found. Does /etc/adage.conf exist?");
 
             when Bad_Conf_Perms =>
-               Put_Line
+               Log.Error
                   ("adage.conf must be root:root/0644 or similar.");
 
             when No_Stat =>
-               Put_Line
+               Log.Error
                   ("Could not stat(2) adage.conf. Errno: " & Err.Errno'Image);
 
             when No_Options =>
-               Put_Line
+               Log.Error
                   ("Options should be preceded by `:`.");
 
             when Bad_Opt =>
-               Put_Line ("Unrecognized option: " & To_String (Err.Opt) & ".");
+               Log.Error
+                  ("Unrecognized option: " & To_String (Err.Opt) & ".");
 
             when Bad_Verb =>
-               Put_Line
+               Log.Error
                   ("Saw " & To_String (Err.Verb) & ": Must be permit/reject.");
 
             when Bad_Target =>
-               Put_Line
+               Log.Error
                   ("Saw " &
                    To_String (Err.Target) & ": Must be u!user or g!group.");
 
-            when Early_End => Put_Line ("Premature line end.");
+            when Early_End => Log.Error ("Premature line end.");
 
             when Expected_As =>
-               Put_Line ("Expected 'as', got: " & To_String (Err.Got));
+               Log.Error ("Expected 'as', got: " & To_String (Err.Got));
          end case;
       end loop;
    end Log_Errors;

@@ -3,11 +3,10 @@ use Interfaces.C.Strings;
 
 with System;
 
-with Ada.Text_IO;
-use Ada.Text_IO;
-
 with Get_Errno_Pkg;
 use Get_Errno_Pkg;
+
+with Log;
 
 package body Exec is
    function Exec_Vp
@@ -24,9 +23,9 @@ package body Exec is
       if Status < 0 then
          R := Get_Errno;
          if R = ENOENT then
-            Put_Line ("Command not found.");
+            Log.Error ("Command not found.");
          else
-            Put_Line ("Exec failed with errno: " & R'Image);
+            Log.Error ("Exec failed with errno: " & R'Image);
          end if;
       end if;
    end Exec;
