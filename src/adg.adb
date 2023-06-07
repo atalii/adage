@@ -1,5 +1,4 @@
 with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Cli;
@@ -46,10 +45,11 @@ procedure Adg is
          end;
       end if;
    exception
-      when E : Drop.Bad_Perms =>
-         Log.Error (Exception_Message (E));
-      when E : Drop.No_Such_User =>
-         Log.Error (Exception_Message (E));
+      when Drop.Bad_Perms =>
+         Log.Error ("Failed to drop to user, permission denied: " &
+            "Is the binary setuid?");
+      when Drop.No_Such_User =>
+         Log.Error ("No such user: " & Cli.Drop_Target);
       when Pass.Cannot_Read =>
          Log.Error ("Cannot read password. Exiting.");
    end Run;

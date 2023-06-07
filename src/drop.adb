@@ -4,9 +4,6 @@ use Interfaces.C.Strings;
 with System;
 with System.Address_To_Access_Conversions;
 
-with Get_Errno_Pkg;
-use Get_Errno_Pkg;
-
 package body Drop is
    package Ptr_Handle is
       new System.Address_To_Access_Conversions (Object => Character);
@@ -14,11 +11,10 @@ package body Drop is
    use Ptr_Handle;
 
    function Ensure
-      (Name : String; Addr : System.Address) return System.Address
+      (Addr : System.Address) return System.Address
    is begin
       if Ptr_Handle.To_Pointer (Addr) = null then
-         raise No_Such_User
-            with "The requested user " & Name & "does not exist.";
+         raise No_Such_User;
       else
          return Addr;
       end if;
@@ -29,7 +25,7 @@ package body Drop is
       C_String : chars_ptr := New_String (Name);
 
       Pw_Ent_Addr : constant System.Address :=
-         Ensure (Name, Get_Pw_Nam (C_String));
+         Ensure (Get_Pw_Nam (C_String));
 
       Pw_Ent : constant Passwd_Pointer.Object_Pointer :=
          Passwd_Pointer.To_Pointer (Pw_Ent_Addr);
@@ -53,7 +49,7 @@ package body Drop is
       Attempt : constant Integer := Set_Uid (Uid);
    begin
       if Attempt /= 0 then
-         raise Bad_Perms with "Failed to setuid(2), errno: " & Get_Errno'Image;
+         raise Bad_Perms;
       end if;
    end Set_Uid_Safe;
 
@@ -62,7 +58,7 @@ package body Drop is
       Attempt : constant Integer := Set_Gid (Gid);
    begin
       if Attempt /= 0 then
-         raise Bad_Perms with "Failed to setgid(2), errno: " & Get_Errno'Image;
+         raise Bad_Perms;
       end if;
    end Set_Gid_Safe;
 end Drop;
