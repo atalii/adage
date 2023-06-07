@@ -11,12 +11,23 @@ with Log;
 with Pass;
 
 procedure Adg is
-   function Verify_Env return Boolean
-   is
-      Status : constant Boolean := Cli.Init_Env and then Conf.Read_Rules;
+   type Action is (Help, Verify, Good_Conf, Bad_Conf);
+
+   function Verify_Env return Action is
    begin
-      Conf.Log_Errors;
-      return Status;
+      case Cli.Init_Env is
+         when Cli.Help =>
+            return Help;
+         when Cli.Verify =>
+            return Verify;
+         when Cli.Parse_Ok =>
+            if Conf.Read_Rules then
+               return Good_Conf;
+            else
+               Conf.Log_Errors;
+               return Bad_Conf;
+            end if;
+      end case;
    end Verify_Env;
 
    procedure Help is
@@ -61,10 +72,19 @@ procedure Adg is
       when Pass.Cannot_Read =>
          Log.Error ("Cannot read password. Exiting.");
    end Run;
+
+   procedure Verify
+   is
+      Status : constant Boolean := Conf.Read_Rules;
+   begin
+      Conf.Log_Errors;
+      Set_Exit_Status (Boolean'Pos (not Status));
+   end Verify;
 begin
-   if not Verify_Env then
-      Help;
-   else
-      Run;
-   end if;
+   case Verify_Env is
+      when Help => Help;
+      when Verify => Verify;
+      when Good_Conf => Run;
+      when Bad_Conf => Set_Exit_Status (1);
+   end case;
 end Adg;

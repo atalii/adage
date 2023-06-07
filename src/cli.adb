@@ -28,17 +28,19 @@ package body Cli is
       return Is_Target;
    end Init_Target;
 
-   function Init_Env return Boolean is
+   function Init_Env return Parse_Result is
       Ac : constant Natural := Argument_Count;
       Offset : Natural := 0;
    begin
       if Ac = 1 and then Argument (1) = "--help" then
-         return False;
+         return Help;
+      elsif Ac = 1 and then Argument (1) = "--verify" then
+         return Verify;
       end if;
 
       if Ac = 0 then
          Cli_Cmd := (Shell => True);
-         return True;
+         return Parse_Ok;
       end if;
 
       --  Look for an @target and advance the command offset if we find one.
@@ -50,7 +52,7 @@ package body Cli is
          Cli_Cmd := (Shell => False, Cmd_Start => 1 + Offset);
       end if;
 
-      return True;
+      return Parse_Ok;
    end Init_Env;
 
    function Cmd_Offset return Natural is

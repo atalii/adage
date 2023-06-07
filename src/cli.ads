@@ -13,11 +13,11 @@ package Cli is
       Argv : System.Address;
    end record;
 
+   type Parse_Result is (Help, Verify, Parse_Ok);
+
    --  Initialize package-global variables by reading the binary's command
-   --  line. Returns true if execution is good to go and false if anything in
-   --  the environment is too problematic to continue (or if the user asked for
-   --  help).
-   function Init_Env return Boolean;
+   --  line. One may only call other functions if this returns Parse_Ok.
+   function Init_Env return Parse_Result;
 
    function Cmd_Offset return Natural;
    function Drop_Target return String;
