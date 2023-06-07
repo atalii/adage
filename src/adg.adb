@@ -28,9 +28,8 @@ procedure Adg is
       Name : constant String := Ident.Read_User;
       Groups : constant Ident.Groups.Vector := Ident.Read_Groups;
       Ticket : constant Conf.Ticket := Conf.Is_Permitted
-         (Cli.Drop_Target,
-          Name,
-          Groups);
+         (Cli.Drop_Target, Name, Groups);
+
       Allowed : constant Boolean := Ticket.Permit;
    begin
       Set_Exit_Status (1);
