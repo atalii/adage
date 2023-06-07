@@ -7,6 +7,7 @@ adg - drop and escalate privileges
 # SYNOPSIS
 
 *adg* --help++
+*adg* --verify++
 *adg* [@user] [cmd...]
 
 # DESCRIPTION
@@ -27,10 +28,14 @@ temporarily drop to the *nas* user and *touch*(1) a file in _/media/nas_:
 
 	adg @nas touch /media/nas/example-file
 
+
 # CONFIGURATION
 
 Adage reads _/etc/adage.conf_ to determine what actions are permitted. This may
 be world-readable, but must be restricted to root-writable.
+
+When Adage is invoked with *adg --verify*, the configuration file is checked for
+syntax errors. Success is silent, and any errors will be logged.
 
 # SEE ALSO
 

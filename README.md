@@ -60,7 +60,8 @@ free time. That said, here's what I'm looking to add or vaguely considering:
   represents a nice security/annoyance compromise, and would be good to support.
 
 + Configuration validation and escalation dry runs. Should be self-explanatory,
-  would be a nice QoL feature.
+  would be a nice QoL feature. (Validation implemented in fff516, dry runs
+  still TODO.)
 
 + PAM. This is... rough. Implementing support for PAM would open up a lot, but
   I'm cautious about this. First, it all but eliminates the benefits of using
