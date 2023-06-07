@@ -48,6 +48,8 @@ procedure Adg is
       when Drop.Bad_Perms =>
          Log.Error ("Failed to drop to user, permission denied: " &
             "Is the binary setuid?");
+      when Drop.Bad_Id =>
+         Log.Error ("Target uid or gid is invalid in this namespace.");
       when Drop.No_Such_User =>
          Log.Error ("No such user: " & Cli.Drop_Target);
       when Pass.Cannot_Read =>

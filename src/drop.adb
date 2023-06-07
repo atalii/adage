@@ -4,6 +4,9 @@ use Interfaces.C.Strings;
 with System;
 with System.Address_To_Access_Conversions;
 
+with Get_Errno_Pkg;
+use Get_Errno_Pkg;
+
 package body Drop is
    package Ptr_Handle is
       new System.Address_To_Access_Conversions (Object => Character);
@@ -44,12 +47,29 @@ package body Drop is
       Set_Uid_Safe (To.Uid);
    end Drop;
 
+   procedure Raise_Errno
+   is
+      Errno : constant Integer := Get_Errno;
+   begin
+      if Errno = EPERM then
+         raise Bad_Perms;
+      elsif Errno = EINVAL then
+         raise Bad_Id;
+      else
+         raise Unexpected_Errno;
+      end if;
+   end Raise_Errno;
+
    procedure Set_Uid_Safe (Uid : uid_t)
    is
-      Attempt : constant Integer := Set_Uid (Uid);
+      Attempt : Integer := Set_Uid (Uid);
    begin
+      while Attempt /= 0 and then Get_Errno /= EAGAIN loop
+         Attempt := Set_Uid (Uid);
+      end loop;
+
       if Attempt /= 0 then
-         raise Bad_Perms;
+         Raise_Errno;
       end if;
    end Set_Uid_Safe;
 
@@ -58,7 +78,7 @@ package body Drop is
       Attempt : constant Integer := Set_Gid (Gid);
    begin
       if Attempt /= 0 then
-         raise Bad_Perms;
+         Raise_Errno;
       end if;
    end Set_Gid_Safe;
 end Drop;
