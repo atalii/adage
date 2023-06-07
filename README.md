@@ -73,4 +73,8 @@ free time. That said, here's what I'm looking to add or vaguely considering:
   not familiar enough with the mechanisms of PAM to make this judgment just yet.
   I could see my decisions going either way here.
 
++ More verification. Right now, components are fairly well-coupled, making it
+  hard to extract pure functions to verify. As a result, Adage is maybe a bit
+  too light on SPARK.
+
 + I haven't actually implemented keepenv yet.
