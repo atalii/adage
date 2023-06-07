@@ -72,3 +72,5 @@ free time. That said, here's what I'm looking to add or vaguely considering:
   I'd really not like to copy that (perceived) deficiency here. That said, I'm
   not familiar enough with the mechanisms of PAM to make this judgment just yet.
   I could see my decisions going either way here.
+
++ I haven't actually implemented keepenv yet.
