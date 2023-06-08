@@ -37,6 +37,11 @@ package Libc_Interop is
    package Group_Pointer is new
       System.Address_To_Access_Conversions (Struct_Group);
 
+   --  Stub for execvpe(3).
+   function Exec_Vpe
+      (File : chars_ptr; Argv : System.Address; Envp : System.Address)
+      return Integer;
+
    --  Stub for getpwuid(3). Returns the address of a Struct_Passwd. Be careful
    --  with this; subsequent calls to any of the Get_Pw/Get_Gr family of
    --  functions can overwrite the contents. Don't free the returned address,
@@ -67,6 +72,9 @@ package Libc_Interop is
    --  Count the number of groups the user is a member in. This isn't a libc
    --  stub, and can be used safely from one thread.
    function Count_Groups return Integer;
+
+   pragma Import
+      (Convention => C, Entity => Exec_Vpe, External_Name => "execvpe");
 
    pragma Import
       (Convention => C, Entity => Get_Pw_Uid, External_Name => "getpwuid");

@@ -1,23 +1,17 @@
-with Interfaces.C.Strings;
-use Interfaces.C.Strings;
-
 with System;
 
 with Get_Errno_Pkg;
 use Get_Errno_Pkg;
 
+with Libc_Interop;
+use Libc_Interop;
+
 with Log;
 
 package body Exec is
-   function Exec_Vp
-      (File : chars_ptr; Argv : System.Address) return Integer;
-
-   pragma Import
-      (Convention => C, Entity => Exec_Vp, External_Name => "execvp");
-
-   procedure Exec (Args : Cli.C_Compat_Args) is
+   procedure Exec (Args : Cli.C_Compat_Args; Clear_Env : Boolean) is
       Status : constant Integer
-         := Exec_Vp (Args.Binary_Name, Args.Argv);
+         := Exec_Vpe (Args.Binary_Name, Args.Argv, System.Null_Address);
       R : Integer;
    begin
       if Status < 0 then

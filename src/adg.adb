@@ -41,7 +41,7 @@ procedure Adg is
          begin
             Drop.Drop (Target);
             Exec.Exec (
-               Cli.Child_Args (Target.Shell_Path));
+               Cli.Child_Args (Target.Shell_Path), False);
          end;
       end if;
    exception
