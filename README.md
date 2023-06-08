@@ -76,5 +76,3 @@ free time. That said, here's what I'm looking to add or vaguely considering:
 + More verification. Right now, components are fairly well-coupled, making it
   hard to extract pure functions to verify. As a result, Adage is maybe a bit
   too light on SPARK.
-
-+ I haven't actually implemented keepenv yet.
