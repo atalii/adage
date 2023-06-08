@@ -40,8 +40,8 @@ procedure Adg is
                Drop.Find_Target (Cli.Drop_Target);
          begin
             Drop.Drop (Target);
-            Exec.Exec (
-               Cli.Child_Args (Target.Shell_Path), False);
+            Exec.Exec
+               (Cli.Child_Args (Target.Shell_Path), Ticket.Opts.Keep_Env);
          end;
       end if;
    exception
