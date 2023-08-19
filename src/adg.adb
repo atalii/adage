@@ -44,16 +44,6 @@ procedure Adg is
                (Cli.Child_Args (Target.Shell_Path), Ticket.Opts.Keep_Env);
          end;
       end if;
-   exception
-      when Drop.Bad_Perms =>
-         Log.Error ("Failed to drop to user, permission denied: " &
-            "Is the binary setuid?");
-      when Drop.Bad_Id =>
-         Log.Error ("Target uid or gid is invalid in this namespace.");
-      when Drop.No_Such_User =>
-         Log.Error ("No such user: " & Cli.Drop_Target);
-      when Pass.Cannot_Read =>
-         Log.Error ("Cannot read password. Exiting.");
    end Run;
 
    procedure Verify
@@ -63,6 +53,7 @@ procedure Adg is
       Conf.Log_Errors;
       Set_Exit_Status (Boolean'Pos (not Status));
    end Verify;
+
 begin
    case Cli.Init_Env is
       when Cli.Help => Help;
@@ -75,4 +66,14 @@ begin
             Set_Exit_Status (1);
          end if;
    end case;
+exception
+   when Drop.Bad_Perms =>
+      Log.Error ("Failed to drop to user, permission denied: " &
+       "Is the binary setuid?");
+   when Drop.Bad_Id =>
+      Log.Error ("Target uid or gid is invalid in this namespace.");
+   when Drop.No_Such_User =>
+      Log.Error ("No such user: " & Cli.Drop_Target);
+   when Pass.Cannot_Read =>
+      Log.Error ("Cannot read password. Exiting.");
 end Adg;
