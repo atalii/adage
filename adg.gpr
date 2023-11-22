@@ -9,7 +9,8 @@ project Adg is
    for Main use ("adg.adb");
 
    package Compiler is
-      for Default_Switches ("Ada") use Adg_Config.Ada_Compiler_Switches;
+      for Default_Switches ("Ada") use
+         Adg_Config.Ada_Compiler_Switches & ("-gnatwe");
    end Compiler;
 
    package Binder is

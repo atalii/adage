@@ -167,7 +167,8 @@ package body Conf is
    end Parse_Target;
 
    procedure Parse_Option
-      (Token : Unbounded_String; Opts : in out Options; Line_Number : Natural) is
+      (Token : Unbounded_String;
+       Opts : in out Options; Line_Number : Natural) is
    begin
       if Token = "nopass" then
          Opts.No_Pass := True;
