@@ -10,10 +10,31 @@ with Log;
 with Pass;
 
 procedure Adg is
+
+   ----------
+   -- Help --
+   ----------
+
    procedure Help is
    begin
       Put_Line ("usage: adg [@user] [cmd...]");
    end Help;
+
+   ------------
+   -- Verify --
+   ------------
+
+   procedure Verify
+   is
+      Status : constant Boolean := Conf.Read_Rules;
+   begin
+      Conf.Log_Errors;
+      Set_Exit_Status (Boolean'Pos (not Status));
+   end Verify;
+
+   ---------
+   -- Run --
+   ---------
 
    procedure Run is
       Name : constant String := Ident.Read_User;
@@ -45,14 +66,6 @@ procedure Adg is
          end;
       end if;
    end Run;
-
-   procedure Verify
-   is
-      Status : constant Boolean := Conf.Read_Rules;
-   begin
-      Conf.Log_Errors;
-      Set_Exit_Status (Boolean'Pos (not Status));
-   end Verify;
 
 begin
    case Cli.Init_Env is

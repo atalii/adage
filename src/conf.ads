@@ -4,7 +4,6 @@ use Ada.Strings.Unbounded;
 with Ident;
 use Ident;
 
---  We can parse all of /etc/adage.conf except for :options.
 package Conf is
    type Options is record
       No_Pass : Boolean;
@@ -16,14 +15,14 @@ package Conf is
       Opts : Options;
    end record;
 
-    -- Read the rules from /etc/adage.conf. Returns permitted if everything's
-    -- okay, and returns false if there's been an error, at which point one can
-    -- log the errors.
    function Read_Rules return Boolean;
+   --  Read the rules from /etc/adage.conf. Returns true if everything's okay,
+   --  and returns false if there's been an error, at which point one can log
+   --  the errors.
 
-    -- Log all errors. This effectively does nothing when no errors are
-    -- present.
    procedure Log_Errors;
+   --  Log all errors. This effectively does nothing when no errors are
+   --  present.
 
    function Is_Permitted
       (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
