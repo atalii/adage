@@ -20,10 +20,10 @@ is
       A_I : Character;
       B_I : Character;
    begin
-      for I in 0 .. (A'Last - A'First) loop
+      for I in 0 .. (A'Length - 1) loop
          A_I := A (A'First + I);
          B_I := B (B'First + I);
-         R := R and then (A_I = B_I);
+         R := R and (A_I = B_I);
 
          pragma Loop_Invariant
             (R = (for all J in A'First .. (A'First + I) =>
