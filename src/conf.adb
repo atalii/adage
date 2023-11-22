@@ -1,5 +1,3 @@
-with Ada.Containers.Vectors;
-
 with Ada.Text_IO; use Ada.Text_IO;
 
 with Get_Errno_Pkg;
@@ -30,11 +28,7 @@ package body Conf is
    package Errors is new
       Ada.Containers.Vectors (Index_Type => Natural, Element_Type => Error);
 
-   package Rules is new
-      Ada.Containers.Vectors (Index_Type => Natural, Element_Type => Rule);
-
    Reported_Errors : Errors.Vector;
-   Reported_Rules : Rules.Vector;
 
    procedure Report (Err : Error) is
    begin
@@ -180,7 +174,11 @@ package body Conf is
       end if;
    end Parse_Option;
 
-   procedure Parse (Line : String; Line_Number : Natural) is
+   -----------
+   -- Parse --
+   -----------
+
+   procedure Parse (Line : String; Line_Number : Natural; R : out Rules) is
       Token : Unbounded_String;
       Start : Natural := Line'First;
       Effect : Rule_Effect;
@@ -247,18 +245,24 @@ package body Conf is
          end if;
       end if;
 
-      Rules.Append (Reported_Rules, My_Rule);
+      R.Vec.Append (My_Rule);
    end Parse;
 
-   function Read_Rules return Boolean is
+   ----------------
+   -- Read_Rules --
+   ----------------
+
+   function Read_Rules return Rules is
       C : File_Type;
       Line_Number : Natural := 1;
       R : constant Integer := Check_Conf_Perms;
       Errno : constant Integer := Get_Errno;
+
+      Ret : Rules := (Vec => Rules_Vec.Empty_Vector);
    begin
       if R < 0 and then Errno = ENOENT then
          Report ((Err => No_Conf, Line => 0));
-         return False;
+         raise Parse_Failure;
       elsif R < 0 then
          Report ((Err => No_Stat, Errno => Errno, Line => 0));
       elsif R = 0 then
@@ -271,16 +275,20 @@ package body Conf is
          declare
             L : constant String := Get_Line (C);
          begin
-            Parse (L, Line_Number);
+            Parse (L, Line_Number, Ret);
             Line_Number := Line_Number + 1;
          end;
       end loop;
 
-      return Reported_Errors.Is_Empty;
+      if not Reported_Errors.Is_Empty then
+         raise Parse_Failure;
+      end if;
+
+      return Ret;
    exception
       when Name_Error =>
          Report ((Err => No_Conf, Line => 0));
-         return False;
+         raise Parse_Failure;
    end Read_Rules;
 
    function Applicable
@@ -314,7 +322,10 @@ package body Conf is
    end Applicable;
 
    function Rules_Permit
-      (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
+      (Reported_Rules : Rules_Vec.Vector;
+       Drop_Target : String;
+       Actor_Name : String;
+       Actor_Groups : Groups.Vector)
       return Ticket
    is
       T : Ticket :=
@@ -334,7 +345,10 @@ package body Conf is
    end Rules_Permit;
 
    function Rules_Deny
-      (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
+      (Reported_Rules : Rules_Vec.Vector;
+       Drop_Target : String;
+       Actor_Name : String;
+       Actor_Groups : Groups.Vector)
       return Boolean is
    begin
       for Rule of Reported_Rules loop
@@ -348,14 +362,23 @@ package body Conf is
       return False;
    end Rules_Deny;
 
+   ------------------
+   -- Is_Permitted --
+   ------------------
+
    function Is_Permitted
-      (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
+      (R : Rules;
+       Drop_Target : String;
+       Actor_Name : String;
+       Actor_Groups : Groups.Vector)
       return Ticket
    is
+      Reported_Rules : constant Rules_Vec.Vector := R.Vec;
+
       Allowed : Ticket :=
-         Rules_Permit (Drop_Target, Actor_Name, Actor_Groups);
+         Rules_Permit (Reported_Rules, Drop_Target, Actor_Name, Actor_Groups);
       Denied : constant Boolean :=
-         Rules_Deny (Drop_Target, Actor_Name, Actor_Groups);
+         Rules_Deny (Reported_Rules, Drop_Target, Actor_Name, Actor_Groups);
    begin
       Allowed.Permit := Allowed.Permit and then not Denied;
       return Allowed;

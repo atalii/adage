@@ -1,3 +1,5 @@
+with Ada.Containers.Vectors;
+
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
 
@@ -15,17 +17,24 @@ package Conf is
       Opts : Options;
    end record;
 
-   function Read_Rules return Boolean;
-   --  Read the rules from /etc/adage.conf. Returns true if everything's okay,
-   --  and returns false if there's been an error, at which point one can log
-   --  the errors.
+   type Rules is tagged private;
+
+   Parse_Failure : exception;
+
+   function Read_Rules return Rules;
+   --  Read the rules from /etc/adage.conf. This sets some package-global
+   --  variables and throws if an error is encountered while parsing the config
+   --  file. Log_Errors may be used to display the errors in such a case.
 
    procedure Log_Errors;
    --  Log all errors. This effectively does nothing when no errors are
    --  present.
 
    function Is_Permitted
-      (Drop_Target : String; Actor_Name : String; Actor_Groups : Groups.Vector)
+      (R : Rules;
+       Drop_Target : String;
+       Actor_Name : String;
+       Actor_Groups : Groups.Vector)
       return Ticket;
 private
    type Rule_Effect is (Permit, Reject);
@@ -40,6 +49,13 @@ private
       Target_Actor : Unbounded_String;
       Drop_Actor : Unbounded_String;
       Opts : Options;
+   end record;
+
+   package Rules_Vec is new
+      Ada.Containers.Vectors (Index_Type => Natural, Element_Type => Rule);
+
+   type Rules is tagged record
+      Vec : Rules_Vec.Vector;
    end record;
 
    function Check_Conf_Perms return Integer;
