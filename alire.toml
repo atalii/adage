@@ -9,3 +9,28 @@ maintainers-logins = ["atalii"]
 executables = ["adg"]
 [[depends-on]]
 gnatprove = "^12.1.1"
+
+[build-switches]
+"*".style_checks = [
+  "-gnaty3",
+  "-gnatya",
+  "-gnatyA",
+  "-gnatyb",
+  "-gnatyc",
+  "-gnatye",
+  "-gnatyf",
+  "-gnatyh",
+  "-gnatyi",
+  "-gnatyI",
+  "-gnatyk",
+  "-gnatyl",
+  "-gnatym",
+  "-gnatyn",
+  "-gnatyO",
+  "-gnatyp",
+  "-gnatyr",
+  "-gnatyS",
+  "-gnatyt",
+  "-gnatyu",
+  "-gnatyx"
+]
