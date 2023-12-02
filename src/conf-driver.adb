@@ -1,11 +1,13 @@
 with Ada.Text_IO; use Ada.Text_IO;
 
+with Log;
+
 with Get_Errno_Pkg;
 use Get_Errno_Pkg;
 
-with Log;
+with Conf.Parse; use Conf.Parse;
 
-package body Conf is
+package body Conf.Driver is
    type Error_Type is
       (No_Conf, Bad_Conf_Perms, No_Stat, No_Options, Bad_Opt, Bad_Verb,
       Bad_Target, Early_End, Expected_As);
@@ -125,20 +127,6 @@ package body Conf is
       Start := Last + 1;
    end Next_Token;
 
-   function Parse_Rule_Effect
-      (Token : Unbounded_String; Effect : out Rule_Effect) return Boolean
-   is begin
-      if Token = "permit" then
-         Effect := Permit;
-      elsif Token = "reject" then
-         Effect := Reject;
-      else
-         return False;
-      end if;
-
-      return True;
-   end Parse_Rule_Effect;
-
    function Parse_Target
       (Token : Unbounded_String;
        Target : out Unbounded_String;
@@ -198,10 +186,17 @@ package body Conf is
          return;
       end if;
 
-      if not Parse_Rule_Effect (Token, Effect) then
-         Report ((Err => Bad_Verb, Verb => Token, Line => Line_Number));
-         return;
-      end if;
+      declare
+         R : constant Parse_Rule_Effect_T.R :=
+            Parse_Rule_Effect (To_String (Token));
+      begin
+         case R.Okay is
+            when True => Effect := R.V;
+            when False =>
+               Report ((Err => Bad_Verb, Verb => Token, Line => Line_Number));
+               return;
+         end case;
+      end;
 
       Next_Token (Line, Token, Start);
 
@@ -383,4 +378,4 @@ package body Conf is
       Allowed.Permit := Allowed.Permit and then not Denied;
       return Allowed;
    end Is_Permitted;
-end Conf;
+end Conf.Driver;
