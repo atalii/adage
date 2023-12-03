@@ -167,6 +167,9 @@ package body Conf.Driver is
    -----------
 
    procedure Parse (Line : String; Line_Number : Natural; R : out Rules) is
+      function Should_Ignore (L : String) return Boolean is
+         (L = "" or else L (L'First) = '#');
+
       Token : Unbounded_String;
       Start : Natural := Line'First;
       Effect : Rule_Effect;
@@ -176,7 +179,7 @@ package body Conf.Driver is
       Option : Unbounded_String;
       My_Rule : Rule;
    begin
-      if Line = "" or else Line (Line'First) = '#' then
+      if Should_Ignore (Line) then
          return;
       end if;
 
