@@ -25,4 +25,8 @@ project Adg is
       for Artifacts (".") use ("share");
    end Install;
 
+   package Prove is
+      for Proof_Switches ("Ada") use ("--level=1", "--report=all");
+   end Prove;
+
 end Adg;

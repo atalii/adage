@@ -1,18 +1,23 @@
 package body Conf.Parse
    with SPARK_Mode => On
 is
+
    -----------------------
    -- Parse_Rule_Effect --
    -----------------------
 
    function Parse_Rule_Effect (Token : String) return Parse_Rule_Effect_T.R
-   is begin
+   is
+      R : Parse_Rule_Effect_T.R;
+   begin
       if Token = "permit" then
-         return (Okay => True, V => Permit);
+         R := (Okay => True, V => Permit);
       elsif Token = "reject" then
-         return (Okay => True, V => Reject);
+         R := (Okay => True, V => Reject);
       else
-         return (Okay => False);
+         R := (Okay => False);
       end if;
+
+      return R;
    end Parse_Rule_Effect;
 end Conf.Parse;
