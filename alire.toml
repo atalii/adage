@@ -11,6 +11,8 @@ executables = ["adg"]
 gnatprove = "^12.1.1"
 
 [build-switches]
+"development".optimization = [ "-O0" ]
+
 "*".style_checks = [
   "-gnaty3",
   "-gnatya",
