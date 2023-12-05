@@ -158,12 +158,16 @@ package body Conf.Driver is
       Target_Category : Category;
       Drop_Actor : Unbounded_String;
       My_Rule : Rule;
+
+      Lex_R : Conf.Parse.Lex_Result;
    begin
       if Should_Ignore (L) then
          return;
       end if;
 
-      T := Conf.Parse.Consume_Token (L);
+      Lex_R := Conf.Parse.Consume_Token (L);
+      T := Lex_R.Token;
+      L := Lex_R.Rest;
 
       declare
          R : constant Conf.Parse.Parse_Rule_Effect_T.R :=
@@ -180,7 +184,9 @@ package body Conf.Driver is
          end case;
       end;
 
-      T := Conf.Parse.Consume_Token (L);
+      Lex_R := Conf.Parse.Consume_Token (L);
+      T := Lex_R.Token;
+      L := Lex_R.Rest;
 
       if Check_Eol (T, Line_Number) then
          return;
@@ -194,7 +200,9 @@ package body Conf.Driver is
          return;
       end if;
 
-      T := Conf.Parse.Consume_Token (L);
+      Lex_R := Conf.Parse.Consume_Token (L);
+      T := Lex_R.Token;
+      L := Lex_R.Rest;
 
       if T /= "as" then
          Report (
@@ -204,8 +212,11 @@ package body Conf.Driver is
          return;
       end if;
 
-      Drop_Actor := To_Unbounded_String
-         (To_String (Conf.Parse.Consume_Token (L)));
+      Lex_R := Conf.Parse.Consume_Token (L);
+      T := Lex_R.Token;
+      L := Lex_R.Rest;
+
+      Drop_Actor := To_Unbounded_String (To_String (T));
 
       My_Rule :=
          (Effect => Effect,
@@ -223,7 +234,10 @@ package body Conf.Driver is
 
             loop
                exit when L = "";
-               T := Conf.Parse.Consume_Token (L);
+               Lex_R := Conf.Parse.Consume_Token (L);
+               T := Lex_R.Token;
+               L := Lex_R.Rest;
+
                Parse_Option (T, My_Rule.Opts, Line_Number);
             end loop;
          end if;
