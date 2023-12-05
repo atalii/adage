@@ -13,7 +13,8 @@ is
       Rest : Strings.Bounded_String;
    end record;
 
-   function Consume_Token (Line : Strings.Bounded_String) return Lex_Result;
+   function Consume_Token (Line : Strings.Bounded_String) return Lex_Result
+      with Pre => Strings.Length (Line) > 0;
    --  Consume a token from a line, returning a Lex_Result. Result.Token is the
    --  first token encountered, and Rest is the string without that token at
    --  the head. Consume_Token may be called again on Result'Rest. A token is a

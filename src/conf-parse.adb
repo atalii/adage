@@ -33,7 +33,7 @@ is
       Tok_Last : Natural;
       Next_Start : Natural;
       T : Strings.Bounded_String;
-      R : Strings.Bounded_String;
+      R : Strings.Bounded_String := Strings.Null_Bounded_String;
    begin
       for I in 1 .. Length (Line) loop
          Tok_Start := I;
@@ -45,6 +45,8 @@ is
       for I in Tok_Start .. Length (Line) loop
          exit when Element (Line, I) = ' ';
          Tok_Last := I;
+
+         pragma Loop_Invariant (I = Tok_Last and then I >= Tok_Start);
       end loop;
 
       T := Bounded_Slice (Line, Tok_Start, Tok_Last);
@@ -55,12 +57,8 @@ is
          exit when Element (Line, I) /= ' ';
       end loop;
 
-      Next_Start := Next_Start + 1;
-
-      if Next_Start > Length (Line) then
-         R := To_Bounded_String ("");
-      else
-         R := Bounded_Slice (Line, Next_Start, Length (Line));
+      if Next_Start < Length (Line) then
+         R := Bounded_Slice (Line, Next_Start + 1, Length (Line));
       end if;
 
       return (Token => T, Rest => R);
