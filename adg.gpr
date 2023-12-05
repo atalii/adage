@@ -26,7 +26,7 @@ project Adg is
    end Install;
 
    package Prove is
-      for Proof_Switches ("Ada") use ("--level=1", "--report=all");
+      for Proof_Switches ("Ada") use ("--level=1");
    end Prove;
 
 end Adg;
