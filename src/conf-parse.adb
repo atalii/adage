@@ -20,4 +20,51 @@ is
 
       return R;
    end Parse_Rule_Effect;
+
+   -------------------
+   -- Consume_Token --
+   -------------------
+
+   function Consume_Token
+      (Line : in out Strings.Bounded_String)
+      return Strings.Bounded_String
+   is
+      use Strings;
+
+      Tok_Start : Natural := 1;
+      Tok_Last : Natural;
+      Next_Start : Natural;
+      R : Strings.Bounded_String;
+   begin
+      for I in 1 .. Length (Line) loop
+         Tok_Start := I;
+         exit when Element (Line, I) /= ' ';
+      end loop;
+
+      Tok_Last := Tok_Start;
+
+      for I in Tok_Start .. Length (Line) loop
+         exit when Element (Line, I) = ' ';
+         Tok_Last := I;
+      end loop;
+
+      R := Bounded_Slice (Line, Tok_Start, Tok_Last);
+
+      Next_Start := Tok_Last;
+      for I in Next_Start .. Length (Line) loop
+         Next_Start := I;
+         exit when Element (Line, I) /= ' ';
+      end loop;
+
+      Next_Start := Next_Start + 1;
+
+      if Next_Start > Length (Line) then
+         Line := To_Bounded_String ("");
+      else
+         Line := Bounded_Slice (Line, Next_Start, Length (Line));
+      end if;
+
+      return R;
+   end Consume_Token;
+
 end Conf.Parse;

@@ -1,8 +1,15 @@
+with Ada.Strings.Bounded;
+
 with Conf.Common; use Conf.Common;
 
 package Conf.Parse
    with SPARK_Mode => On
 is
+   package Strings is new
+      Ada.Strings.Bounded.Generic_Bounded_Length (Max => 1024);
+   --  These strings are responsible for representing lines and portions of
+   --  lines.
+
    generic
       type Val is private;
    package Parse_Result is
@@ -27,4 +34,16 @@ is
             (Parse_Rule_Effect_T.Contains (Parse_Rule_Effect'Result, Reject))
          and then (Token = "permit" or else Token = "reject") =
             Parse_Rule_Effect'Result.Okay);
+
+   function Consume_Token
+      (Line : in out Strings.Bounded_String)
+      return Strings.Bounded_String;
+   --  Consume a token from Line and return it. Line itself is modified so as
+   --  to no longer include the token at the head. A token is a string
+   --  delimited by (potentially zero) spaces, roughly:
+   --
+   --  Token ::= " "* [^" "] " "*
+   --
+   --  This function will not interpret all whitespace as whitespace. Should
+   --  make this UTF-8 aware.
 end Conf.Parse;

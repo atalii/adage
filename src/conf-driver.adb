@@ -5,7 +5,7 @@ with Log;
 with Get_Errno_Pkg;
 use Get_Errno_Pkg;
 
-with Conf.Parse; use Conf.Parse;
+with Conf.Parse;
 
 package body Conf.Driver is
    type Error_Type is
@@ -81,10 +81,11 @@ package body Conf.Driver is
    end Log_Errors;
 
    function Check_Eol
-      (Start : Natural; Line : String; Line_Number : Integer)
-      return Boolean
+      (Line : Conf.Parse.Strings.Bounded_String;
+      Line_Number : Natural) return Boolean
    is
-      Eol : constant Boolean := Start >= Line'Length;
+      use Conf.Parse.Strings;
+      Eol : constant Boolean := Line = "";
    begin
       if Eol then
          Report ((Err => Early_End, Line => Line_Number));
@@ -93,45 +94,13 @@ package body Conf.Driver is
       return Eol;
    end Check_Eol;
 
-   procedure Next_Token
-      (Line : String; Token : out Unbounded_String; Start : in out Natural)
-   is
-      Last : Natural;
-      C : Character;
-   begin
-      if Start >= Line'Length then
-         return;
-      end if;
-
-      for I in Start .. Line'Length loop
-         C := Line (I);
-         Start := I;
-         exit when C /= ' ';
-      end loop;
-
-      Last := Start;
-
-      for I in Start .. Line'Length loop
-         C := Line (I);
-         exit when C = ' ';
-         Last := I;
-      end loop;
-
-      Token := To_Unbounded_String (Line (Start .. Last));
-
-      for I in Last .. Line'Length loop
-         C := Line (I);
-         exit when C /= ' ';
-         Last := I;
-      end loop;
-      Start := Last + 1;
-   end Next_Token;
-
    function Parse_Target
-      (Token : Unbounded_String;
+      (Token : Conf.Parse.Strings.Bounded_String;
        Target : out Unbounded_String;
        Target_Category : out Category) return Boolean
-   is begin
+   is
+      use Conf.Parse.Strings;
+   begin
       if Token'Size <= 3 then
          return False;
       end if;
@@ -144,13 +113,17 @@ package body Conf.Driver is
          return False;
       end if;
 
-      Target := Tail (Token, Length (Token) - 2);
+      Target := To_Unbounded_String
+         (To_String (Tail (Token, Length (Token) - 2)));
+
       return True;
    end Parse_Target;
 
    procedure Parse_Option
-      (Token : Unbounded_String;
-       Opts : in out Options; Line_Number : Natural) is
+      (Token : Conf.Parse.Strings.Bounded_String;
+      Opts : in out Options; Line_Number : Natural)
+   is
+      use Conf.Parse.Strings;
    begin
       if Token = "nopass" then
          Opts.No_Pass := True;
@@ -158,68 +131,81 @@ package body Conf.Driver is
          Opts.Keep_Env := True;
       else
          Report ((Err => Bad_Opt, Line => Line_Number,
-            Opt => Token));
+            Opt => To_Unbounded_String (To_String (Token))));
       end if;
    end Parse_Option;
 
-   -----------
-   -- Parse --
-   -----------
+   ---------------
+   -- Parse_Drv --
+   ---------------
 
-   procedure Parse (Line : String; Line_Number : Natural; R : out Rules) is
-      function Should_Ignore (L : String) return Boolean is
-         (L = "" or else L (L'First) = '#');
+   procedure Parse_Drv
+      (Given_Line : String; Line_Number : Natural; R : out Rules)
+   is
+      use Conf.Parse.Strings;
 
-      Token : Unbounded_String;
-      Start : Natural := Line'First;
+      function Should_Ignore (L : Conf.Parse.Strings.Bounded_String)
+         return Boolean is (L = "" or else Head (L, 1) = "#");
+
+      L : Bounded_String :=
+         Conf.Parse.Strings.To_Bounded_String (Given_Line);
+
+      T : Bounded_String :=
+         Conf.Parse.Strings.To_Bounded_String (Given_Line);
+
       Effect : Rule_Effect;
       Target_Actor : Unbounded_String;
       Target_Category : Category;
       Drop_Actor : Unbounded_String;
-      Option : Unbounded_String;
       My_Rule : Rule;
    begin
-      if Should_Ignore (Line) then
+      if Should_Ignore (L) then
          return;
       end if;
 
-      Next_Token (Line, Token, Start);
-
-      if Check_Eol (Start, Line, Line_Number) then
-         return;
-      end if;
+      T := Conf.Parse.Consume_Token (L);
 
       declare
-         R : constant Parse_Rule_Effect_T.R :=
-            Parse_Rule_Effect (To_String (Token));
+         R : constant Conf.Parse.Parse_Rule_Effect_T.R :=
+            Conf.Parse.Parse_Rule_Effect (To_String (T));
       begin
          case R.Okay is
             when True => Effect := R.V;
             when False =>
-               Report ((Err => Bad_Verb, Verb => Token, Line => Line_Number));
+               Report
+                  ((Err => Bad_Verb,
+                    Verb => To_Unbounded_String (To_String (T)), -- FIXME
+                    Line => Line_Number));
                return;
          end case;
       end;
 
-      Next_Token (Line, Token, Start);
+      T := Conf.Parse.Consume_Token (L);
 
-      if Check_Eol (Start, Line, Line_Number) then
+      if Check_Eol (T, Line_Number) then
          return;
       end if;
 
-      if not Parse_Target (Token, Target_Actor, Target_Category) then
-         Report ((Err => Bad_Target, Line => Line_Number, Target => Token));
+      if not Parse_Target (T, Target_Actor, Target_Category) then
+         Report (
+            (Err => Bad_Target,
+             Line => Line_Number,
+             Target => To_Unbounded_String (To_String (T))));
          return;
       end if;
 
-      Next_Token (Line, Token, Start);
+      T := Conf.Parse.Consume_Token (L);
 
-      if Token /= "as" then
-         Report ((Err => Expected_As, Got => Token, Line => Line_Number));
+      if T /= "as" then
+         Report (
+            (Err => Expected_As,
+             Got => To_Unbounded_String (To_String (T)),
+             Line => Line_Number));
          return;
       end if;
 
-      Next_Token (Line, Drop_Actor, Start);
+      Drop_Actor := To_Unbounded_String
+         (To_String (Conf.Parse.Consume_Token (L)));
 
       My_Rule :=
          (Effect => Effect,
@@ -228,7 +214,7 @@ package body Conf.Driver is
           Drop_Actor => Drop_Actor,
           Opts => (No_Pass => False, Keep_Env => False));
 
-      if Start < Line'Last then
+      if L /= "" then
          if Tail (Drop_Actor, 1) /= ":" then
             Report ((Err => No_Options, Line => Line_Number));
          else
@@ -236,15 +222,15 @@ package body Conf.Driver is
                (Slice (My_Rule.Drop_Actor, 1, Length (Drop_Actor) - 1));
 
             loop
-               exit when Start >= Line'Last;
-               Next_Token (Line, Option, Start);
-               Parse_Option (Option, My_Rule.Opts, Line_Number);
+               exit when L = "";
+               T := Conf.Parse.Consume_Token (L);
+               Parse_Option (T, My_Rule.Opts, Line_Number);
             end loop;
          end if;
       end if;
 
       R.Vec.Append (My_Rule);
-   end Parse;
+   end Parse_Drv;
 
    ----------------
    -- Read_Rules --
@@ -273,7 +259,7 @@ package body Conf.Driver is
          declare
             L : constant String := Get_Line (C);
          begin
-            Parse (L, Line_Number, Ret);
+            Parse_Drv (L, Line_Number, Ret);
             Line_Number := Line_Number + 1;
          end;
       end loop;
