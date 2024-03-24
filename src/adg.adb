@@ -82,7 +82,7 @@ exception
       Log.Error ("crypt(3) failed: " & Get_Errno_Pkg.Describe);
 
    when Drop.Bad_Perms =>
-      Log.Error ("Failed to drop to user, permission denied: " &
+      Log.Error ("Insufficient permission to drop user." &
        "Is the binary setuid?");
 
    when Drop.Bad_Id =>

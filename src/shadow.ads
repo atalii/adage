@@ -1,5 +1,6 @@
 with Interfaces.C.Strings;
 use Interfaces.C.Strings;
+
 package Shadow is
    --  Read the hash field from /etc/passwd. Do not interpret it; instead
    --  treat it as a string and return it.
