@@ -1,0 +1,4 @@
+external:ADG_LIBRARY_TYPE=default
+external:LIBRARY_TYPE=default
+profile:adg=DEVELOPMENT
+switches:adg=-O0,-g,-gnatVa,-gnatW8,-gnatw.X,-gnatwa,-gnaty3,-gnatyA,-gnatyI,-gnatyO,-gnatyS,-gnatya,-gnatyb,-gnatyc,-gnatye,-gnatyf,-gnatyh,-gnatyi,-gnatyk,-gnatyl,-gnatym,-gnatyn,-gnatyp,-gnatyr,-gnatyt,-gnatyu,-gnatyx
