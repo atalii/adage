@@ -11,6 +11,7 @@ package Shadow is
 
    No_Entry : exception;
    Invalid_Hash_Field : exception;
+   Crypt_Failure : exception;
 private
    function Match_Line (Line : String; User : String) return Boolean;
 
@@ -19,6 +20,8 @@ private
    function Hash_Text (Key : String; Data : String) return String;
 
    function Crypt (key : chars_ptr; salt : chars_ptr) return chars_ptr;
+
+   function Crypt_Wrapper (Key : chars_ptr; Data : chars_ptr) return chars_ptr;
 
    function Get_Salt_Split (Hash : String) return Natural;
 

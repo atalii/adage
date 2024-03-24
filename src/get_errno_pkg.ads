@@ -1,5 +1,10 @@
+with Interfaces.C.Strings;
+use Interfaces.C.Strings;
+
 package Get_Errno_Pkg is
    function Get_Errno return Integer;
+
+   function Describe return String;
 
    EAGAIN : Integer;
    EINVAL : Integer;
@@ -20,4 +25,9 @@ package Get_Errno_Pkg is
 
    pragma Import
       (Convention => C, Entity => EPERM, External_Name => "ERRNO_EPERM");
+private
+   function Str_Error (Errnum : Integer) return chars_ptr;
+
+   pragma Import
+      (Convention => C, Entity => Str_Error, External_Name => "strerror");
 end Get_Errno_Pkg;

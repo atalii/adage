@@ -91,11 +91,27 @@ package body Shadow is
    is
       Key_C : chars_ptr := New_String (Key);
       Data_C : chars_ptr := New_String (Data);
-      Hashed_C : constant chars_ptr := Crypt (Key_C, Data_C);
+      Hashed_C : constant chars_ptr := Crypt_Wrapper (Key_C, Data_C);
       Hashed : constant String := Value (Hashed_C);
    begin
       Free (Key_C);
       Free (Data_C);
-      return Hashed;
+
+      if Hashed (Hashed'First) = '*' then
+         raise Crypt_Failure;
+      else
+         return Hashed;
+      end if;
    end Hash_Text;
+
+   function Crypt_Wrapper (Key : chars_ptr; Data : chars_ptr) return chars_ptr
+   is
+      Hashed_C : constant chars_ptr := Crypt (Key, Data);
+   begin
+      if Hashed_C /= Null_Ptr then
+         return Hashed_C;
+      else
+         raise Crypt_Failure;
+      end if;
+   end Crypt_Wrapper;
 end Shadow;

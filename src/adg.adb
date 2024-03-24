@@ -6,9 +6,11 @@ with Conf;
 with Conf.Driver;
 with Drop;
 with Exec;
+with Get_Errno_Pkg;
 with Ident;
 with Log;
 with Pass;
+with Shadow;
 
 procedure Adg is
 
@@ -75,6 +77,9 @@ begin
    end case;
 
 exception
+
+   when Shadow.Crypt_Failure =>
+      Log.Error ("crypt(3) failed: " & Get_Errno_Pkg.Describe);
 
    when Drop.Bad_Perms =>
       Log.Error ("Failed to drop to user, permission denied: " &
