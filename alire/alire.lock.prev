@@ -1,4 +1,4 @@
-# THIS IS A MACHINE-GENERATED FILE. DO NOT EDIT MANUALLY.
+# THIS FILE IS GENERATED. DO NOT EDIT.
 
 [solution]
 [solution.context]
@@ -7,7 +7,6 @@ solved = true
 crate = "gnatprove"
 fulfilment = "solved"
 pinned = false
-shared = true
 transitivity = "direct"
 versions = "^12.1.1"
 [solution.state.release]
