@@ -183,13 +183,13 @@ package body Conf.Driver is
          end case;
       end;
 
+      if Check_Eol (L, Line_Number) then
+         return;
+      end if;
+
       Lex_R := Conf.Parse.Consume_Token (L);
       T := Lex_R.Token;
       L := Lex_R.Rest;
-
-      if Check_Eol (T, Line_Number) then
-         return;
-      end if;
 
       if not Parse_Target (T, Target_Actor, Target_Category) then
          Report (
