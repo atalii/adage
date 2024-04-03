@@ -22,7 +22,7 @@ package body Conf.Driver is
          when No_Stat => Errno : Integer;
          when Bad_Opt => Opt : Unbounded_String;
          when Bad_Target => Target : Unbounded_String;
-         when Bad_Verb => Verb : Unbounded_String;
+         when Bad_Verb => Verb : Conf.Parse.Line_Fragment;
          when Expected_As => Got : Unbounded_String;
       end case;
    end record;
@@ -65,7 +65,8 @@ package body Conf.Driver is
 
             when Bad_Verb =>
                Log.Error
-                  ("Saw " & To_String (Err.Verb) & ": Must be permit/reject.");
+                  ("Saw " & Conf.Parse.Strings.To_String (Err.Verb) &
+                     ": Must be permit/reject.");
 
             when Bad_Target =>
                Log.Error
@@ -177,9 +178,7 @@ package body Conf.Driver is
             when True => Effect := R.V;
             when False =>
                Report
-                  ((Err => Bad_Verb,
-                    Verb => To_Unbounded_String (To_String (T)), -- FIXME
-                    Line => Line_Number));
+                  ((Err => Bad_Verb, Verb => T, Line => Line_Number));
                return;
          end case;
       end;

@@ -8,9 +8,11 @@ is
    package Strings is new
       Ada.Strings.Bounded.Generic_Bounded_Length (Max => 1024);
 
+   subtype Line_Fragment is Strings.Bounded_String;
+
    type Lex_Result is record
-      Token : Strings.Bounded_String;
-      Rest : Strings.Bounded_String;
+      Token : Line_Fragment;
+      Rest : Line_Fragment;
    end record;
 
    function Consume_Token (Line : Strings.Bounded_String) return Lex_Result
