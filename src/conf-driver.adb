@@ -172,7 +172,7 @@ package body Conf.Driver is
 
       declare
          R : constant Conf.Parse.Parse_Rule_Effect_T.R :=
-            Conf.Parse.Parse_Rule_Effect (To_String (T));
+            Conf.Parse.Parse_Rule_Effect (T);
       begin
          case R.Okay is
             when True => Effect := R.V;

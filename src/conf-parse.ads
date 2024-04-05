@@ -8,14 +8,16 @@ is
    package Strings is new
       Ada.Strings.Bounded.Generic_Bounded_Length (Max => 1024);
 
-   subtype Line_Fragment is Strings.Bounded_String;
+   use Strings;
+
+   subtype Line_Fragment is Bounded_String;
 
    type Lex_Result is record
       Token : Line_Fragment;
       Rest : Line_Fragment;
    end record;
 
-   function Consume_Token (Line : Strings.Bounded_String) return Lex_Result
+   function Consume_Token (Line : Line_Fragment) return Lex_Result
       with Pre => Strings.Length (Line) > 0;
    --  Consume a token from a line, returning a Lex_Result. Result.Token is the
    --  first token encountered, and Rest is the string without that token at
@@ -43,12 +45,14 @@ is
 
    package Parse_Rule_Effect_T is new Parse_Result (Val => Rule_Effect);
 
-   function Parse_Rule_Effect (Token : String) return Parse_Rule_Effect_T.R
+   function Parse_Rule_Effect (Token : Line_Fragment)
+      return Parse_Rule_Effect_T.R
       with Post =>
-         ((Token = "permit") =
+         ((Token = "permit" or else Token = "reject") =
+            Parse_Rule_Effect'Result.Okay)
+         and then ((Token = "permit") =
             (Parse_Rule_Effect_T.Contains (Parse_Rule_Effect'Result, Permit))
-         and then (Token = "reject") =
-            (Parse_Rule_Effect_T.Contains (Parse_Rule_Effect'Result, Reject))
-         and then (Token = "permit" or else Token = "reject") =
-            Parse_Rule_Effect'Result.Okay);
+         and then ((Token = "reject") =
+            (Parse_Rule_Effect_T.Contains
+               (Parse_Rule_Effect'Result, Reject))));
 end Conf.Parse;

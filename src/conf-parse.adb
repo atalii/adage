@@ -6,29 +6,26 @@ is
    -- Parse_Rule_Effect --
    -----------------------
 
-   function Parse_Rule_Effect (Token : String) return Parse_Rule_Effect_T.R
-   is
-      R : Parse_Rule_Effect_T.R;
-   begin
+   function Parse_Rule_Effect (Token : Line_Fragment)
+      return Parse_Rule_Effect_T.R
+   is begin
       if Token = "permit" then
-         R := (Okay => True, V => Permit);
-      elsif Token = "reject" then
-         R := (Okay => True, V => Reject);
-      else
-         R := (Okay => False);
+         return (Okay => True, V => Permit);
       end if;
 
-      return R;
+      if Token = "reject" then
+         return (Okay => True, V => Reject);
+      end if;
+
+      return (Okay => False);
    end Parse_Rule_Effect;
 
    -------------------
    -- Consume_Token --
    -------------------
 
-   function Consume_Token (Line : Strings.Bounded_String) return Lex_Result
+   function Consume_Token (Line : Line_Fragment) return Lex_Result
    is
-      use Strings;
-
       Tok_Start : Natural := 1;
       Tok_Last : Natural;
       Next_Start : Natural;
