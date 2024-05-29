@@ -47,12 +47,14 @@ is
 
    function Parse_Rule_Effect (Token : Line_Fragment)
       return Parse_Rule_Effect_T.R
-      with Post =>
-         ((Token = "permit" or else Token = "reject") =
-            Parse_Rule_Effect'Result.Okay)
-         and then ((Token = "permit") =
-            (Parse_Rule_Effect_T.Contains (Parse_Rule_Effect'Result, Permit))
-         and then ((Token = "reject") =
-            (Parse_Rule_Effect_T.Contains
-               (Parse_Rule_Effect'Result, Reject))));
+      with
+         Pre => (Length (Token) > 0),
+         Contract_Cases =>
+            (Token = "permit" =>
+                Parse_Rule_Effect_T.Contains
+                  (Parse_Rule_Effect'Result, Permit),
+             Token = "reject" =>
+                Parse_Rule_Effect_T.Contains
+                  (Parse_Rule_Effect'Result, Reject),
+             others => not Parse_Rule_Effect'Result.Okay);
 end Conf.Parse;
