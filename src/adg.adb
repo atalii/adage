@@ -62,7 +62,7 @@ begin
 
    Set_Exit_Status (1);
 
-   case Cli.Init_Env is
+   case Cli.Action is
       when Cli.Help =>
          Help;
          Set_Exit_Status (0);

@@ -3,6 +3,8 @@ with Ada.Command_Line; use Ada.Command_Line;
 with Interfaces.C; use Interfaces.C;
 
 package body Cli is
+   Result : Parse_Result;
+
    type Child_Action (Shell : Boolean := False) is record
       case Shell is
          when False => Cmd_Start : Natural := 1;
@@ -16,6 +18,12 @@ package body Cli is
    Cli_Target : Target_Str.Bounded_String
       := Target_Str.To_Bounded_String ("root");
 
+   function Action return Parse_Result is (Result);
+
+   -----------------
+   -- Init_Target --
+   -----------------
+
    function Init_Target (Slug : String) return Boolean
    is
       Is_Target : constant Boolean := Slug (Slug'First) = '@';
@@ -27,6 +35,10 @@ package body Cli is
 
       return Is_Target;
    end Init_Target;
+
+   --------------
+   -- Init_Env --
+   --------------
 
    function Init_Env return Parse_Result is
       Ac : constant Natural := Argument_Count;
@@ -57,6 +69,8 @@ package body Cli is
 
    function Cmd_Offset return Natural is
    begin
+      Assert_Parse_Ok;
+
       case Cli_Cmd.Shell is
          when True => return 0;
          when False => return Cli_Cmd.Cmd_Start;
@@ -65,6 +79,8 @@ package body Cli is
 
    function Drop_Target return String is
    begin
+      Assert_Parse_Ok;
+
       return Target_Str.To_String (Cli_Target);
    end Drop_Target;
 
@@ -100,4 +116,14 @@ package body Cli is
          (Binary_Name => Binary_Name,
           Argv => Argv.all'Address);
    end Child_Args;
+
+   procedure Assert_Parse_Ok is
+   begin
+      if Result /= Parse_Ok then
+         raise Parse_N_Ok;
+      end if;
+   end Assert_Parse_Ok;
+
+begin
+   Result := Init_Env;
 end Cli;

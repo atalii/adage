@@ -15,12 +15,13 @@ package Cli is
 
    type Parse_Result is (Help, Verify, Parse_Ok);
 
-   --  Initialize package-global variables by reading the binary's command
-   --  line. One may only call other functions if this returns Parse_Ok.
-   function Init_Env return Parse_Result;
-
+   function Action return Parse_Result;
    function Cmd_Offset return Natural;
    function Drop_Target return String;
+
+   --  Thrown if Cmd_Offset or Drop_Target are called when Action
+   --  isn't Parse_Ok.
+   Parse_N_Ok : exception;
 
    --  Allocate children for a returned C_Compat_Args. This code is basically
    --  C, be careful.
@@ -28,4 +29,6 @@ package Cli is
 private
    package Target_Str is new
       Ada.Strings.Bounded.Generic_Bounded_Length (Max => 128);
+
+   procedure Assert_Parse_Ok;
 end Cli;
